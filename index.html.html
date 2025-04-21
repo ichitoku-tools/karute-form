@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>施術記録フォーム</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fdf8f2;
+      margin: 0;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #ffffff;
+      padding: 2rem 1.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    h1 {
+      font-size: 1.6rem;
+      text-align: center;
+      color: #e07b39;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1.4rem;
+      font-weight: bold;
+      color: #444;
+    }
+    select, input[type="text"], textarea {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .checkbox-group label {
+      background: #f0e7dc;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.5rem;
+      font-weight: normal;
+    }
+    .result-box {
+      margin-top: 1rem;
+      color: #e07b39;
+    }
+    #notification {
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.5s ease;
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f4a261;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: none;
+      z-index: 1000;
+      font-weight: bold;
+    }
+    #message {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #e07b39;
+      text-align: center;
+    }
+    button {
+      margin-top: 2rem;
+      width: 100%;
+      padding: 0.9rem;
+      background: #f4a261;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 0.7rem;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e07b39;
+    }
+  </style>
+</head>
+<body>
+  <div id="notification">
+  <div id="notification-message"></div>
+  <button onclick="location.reload()" id="notification-ok" style="margin-top: 1rem; background: white; color: #f4a261; padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; font-weight: bold; display: none;">了解</button>
+</div>
+  <div class="container">
+    <h1>施術記録フォーム</h1>
+    <div id="message" style="display: none;"></div>
+    <form id="recordForm">
+      <label>お客様ニックネーム</label>
+      <input type="text" name="name" required />
+
+      <label>もみほぐし</label>
+      <select id="momi" onchange="updateCourseInfo()">
+        <option value="">選択しない</option>
+        <option value="もみほぐし 20">20分</option>
+        <option value="もみほぐし 30">30分</option>
+        <option value="もみほぐし 40">40分</option>
+        <option value="もみほぐし 60">60分</option>
+        <option value="もみほぐし 80">80分</option>
+        <option value="もみほぐし 100">100分</option>
+        <option value="もみほぐし 120">120分</option>
+      </select>
+
+      <label>足つぼ</label>
+      <select id="ashi" onchange="updateCourseInfo()">
+        <option value="">選択しない</option>
+        <option value="足つぼ 30">30分</option>
+        <option value="足つぼ 50">50分</option>
+      </select>
+
+      <label>アロマ</label>
+      <select id="aroma" onchange="updateCourseInfo()">
+        <option value="">選択しない</option>
+        <option value="アロマ 60">60分</option>
+        <option value="アロマ 90">90分</option>
+        <option value="アロマ 120">120分</option>
+      </select>
+
+      <div class="result-box">
+        <strong>選択中:</strong> <span id="selected-courses">なし</span><br>
+        <strong>合計時間:</strong> <span id="total-time">0</span>分
+      </div>
+      <input type="hidden" name="course" id="course-hidden" />
+
+      <label>お客様のご要望箇所（複数選択可）</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="bui" value="肩">肩</label>
+        <label><input type="checkbox" name="bui" value="首">首</label>
+        <label><input type="checkbox" name="bui" value="腰">腰</label>
+        <label><input type="checkbox" name="bui" value="背中">背中</label>
+        <label><input type="checkbox" name="bui" value="脚">脚</label>
+        <label><input type="checkbox" name="bui" value="足裏">足裏</label>
+        <label><input type="checkbox" name="bui" value="腕">腕</label>
+        <label><input type="checkbox" name="bui" value="全身">全身</label>
+      </div>
+
+      <label>今日の工夫</label>
+      <select name="kufu">
+        <option value="">選択してください</option>
+        <option value="圧の調整">圧の調整</option>
+        <option value="ストレッチ追加">ストレッチ追加</option>
+        <option value="リズム意識">リズム意識</option>
+        <option value="呼吸合わせ">呼吸合わせ</option>
+        <option value="その他">その他</option>
+      </select>
+      <textarea name="kufu_memo" placeholder="補足メモ（任意）"></textarea>
+
+      <label>反省点</label>
+      <select name="hansei">
+        <option value="">選択してください</option>
+        <option value="強弱のムラ">強弱のムラ</option>
+        <option value="会話のタイミング">会話のタイミング</option>
+        <option value="施術時間配分">施術時間配分</option>
+        <option value="姿勢・フォーム">姿勢・フォーム</option>
+        <option value="その他">その他</option>
+      </select>
+      <textarea name="hansei_memo" placeholder="補足メモ（任意）"></textarea>
+
+      <label>お客様の反応（5段階）</label>
+      <select name="reaction">
+        <option value="">選択してください</option>
+        <option value="5">😊 とても良い</option>
+        <option value="4">🙂 良い</option>
+        <option value="3">😐 普通</option>
+        <option value="2">😕 微妙</option>
+        <option value="1">😟 悪い</option>
+      </select>
+
+      <label>自己評価（5段階）</label>
+      <select name="self_rate">
+        <option value="">選択してください</option>
+        <option value="5">👌 満足</option>
+        <option value="4">🙂 良し</option>
+        <option value="3">😐 普通</option>
+        <option value="2">😕 イマイチ</option>
+        <option value="1">😟 反省多し</option>
+      </select>
+
+      <label>自由メモ</label>
+      <textarea name="memo" rows="3" placeholder="自由メモ"></textarea>
+
+      <button type="submit">送信する</button>
+    </form>
+  </div>
+  <script>
+    function updateCourseInfo() {
+      const momi = document.getElementById('momi').value;
+      const ashi = document.getElementById('ashi').value;
+      const aroma = document.getElementById('aroma').value;
+
+      const selected = [momi, ashi, aroma].filter(Boolean);
+      const total = selected.reduce((sum, val) => {
+        const min = parseInt(val.match(/\d+/));
+        return sum + (isNaN(min) ? 0 : min);
+      }, 0);
+
+      document.getElementById('selected-courses').textContent = selected.length ? selected.join(' / ') : 'なし';
+      document.getElementById('total-time').textContent = total;
+      document.getElementById('course-hidden').value = selected.join(', ');
+    }
+
+    function showNotification(text) {
+      const noti = document.getElementById('notification');
+      const message = document.getElementById('notification-message');
+      const okButton = document.getElementById('notification-ok');
+      message.textContent = text;
+      noti.style.opacity = 0;
+      noti.style.display = 'block';
+      setTimeout(() => {
+        noti.style.opacity = 1;
+      }, 10);
+      if (text.includes('送信しました')) {
+        okButton.style.display = 'inline-block';
+      } else {
+        setTimeout(() => {
+          noti.style.opacity = 0;
+          setTimeout(() => {
+            noti.style.display = 'none';
+          }, 500);
+        }, 3000);
+      }
+    }
+
+    document.getElementById('recordForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch('https://script.google.com/macros/s/AKfycbwSasilsnirNVMePpBDTPdOtxH_DAaqjTFT5U7iOKJgxqf_C73Pc47vUq1zh5t6XQfbNQ/exec', {
+          method: 'POST',
+          body: formData
+        });
+
+        const text = await res.text();
+        if (text === 'OK') {
+          showNotification('✨送信しました！記録おつかれさまでした');
+          updateCourseInfo();
+        } else {
+          showNotification('⚠️送信できませんでした。もう一度お試しください');
+        }
+      } catch (error) {
+        showNotification('⚠️通信エラーが発生しました。ネット接続をご確認ください');
+      }
+    });
+  </script>
+</body>
+</html>
